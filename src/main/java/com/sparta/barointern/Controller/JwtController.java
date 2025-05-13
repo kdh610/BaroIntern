@@ -1,15 +1,13 @@
 package com.sparta.barointern.Controller;
 
-import com.sparta.barointern.common.jwt.JwtUtil;
+import com.sparta.barointern.util.jwt.JwtUtil;
 import com.sparta.barointern.dto.UserJwtDto;
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

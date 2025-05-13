@@ -1,4 +1,4 @@
-package com.sparta.barointern.common.jwt;
+package com.sparta.barointern.util.jwt;
 
 import com.sparta.barointern.dto.UserJwtDto;
 import io.jsonwebtoken.ExpiredJwtException;
