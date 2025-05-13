@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handlerBaseExceptionException(BaseException e) {
         Code code = e.getCode();
-        com.sparta.barointern.common.Process error = Process.from(code);
+        Process error = Process.from(code);
 
         return ResponseEntity.status(code.getStatus()).body(ErrorResponse.from(error));
     }
