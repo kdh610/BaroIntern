@@ -1,4 +1,4 @@
-package com.sparta.barointern.enums;
+package com.sparta.barointern.domain.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
