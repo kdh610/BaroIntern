@@ -24,7 +24,7 @@ public class UserService {
     public UserAppResponseDto signup(UserSignupAppRequestDto userSignupRequest) {
         Optional<User> checkuser = userRepository.findByUsername(userSignupRequest.getUsername());
         if(checkuser.isPresent()){
-            throw new BaseException(Code.USER_ALREADY_USERNAME_EXCEPTION);
+            throw new BaseException(Code.USER_ALREADY_EXIST);
         }
 
         String password = passwordEncoder.encode(userSignupRequest.getPassword());

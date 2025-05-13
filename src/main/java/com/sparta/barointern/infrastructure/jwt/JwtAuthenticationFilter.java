@@ -2,7 +2,11 @@ package com.sparta.barointern.infrastructure.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.barointern.common.ApiResponse;
+import com.sparta.barointern.common.ErrorResponse;
+import com.sparta.barointern.common.LoginSucessResponse;
+import com.sparta.barointern.common.Process;
 import com.sparta.barointern.domain.enums.UserRole;
+import com.sparta.barointern.exception.BaseException;
 import com.sparta.barointern.exception.Code;
 import com.sparta.barointern.infrastructure.security.UserDetailsImpl;
 import com.sparta.barointern.presentation.dto.request.LoginRequestDto;
@@ -53,20 +57,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = jwtUtil.createJwtToken(username, userRole, "access");
         Cookie cookie = jwtUtil.createCookie(token);
         response.addCookie(cookie);
-//        ResponseEntity<ApiResponse<String>> reseponseBody = ResponseEntity.ok(ApiResponse.success("로그인 성공!"));
-//        ObjectMapper objectMapper = new ObjectMapper();
-        response.getWriter().write(token);
+        ResponseEntity<LoginSucessResponse> responseBody = ResponseEntity.ok(new LoginSucessResponse(token.substring(7)));
+        ObjectMapper objectMapper = new ObjectMapper();
+        response.getWriter().write(objectMapper.writeValueAsString(responseBody.getBody()));
 
     }
 
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              AuthenticationException failed) throws IOException, ServletException {
         log.info("[JwtFilter] Unsuccessful authentication");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        ResponseEntity<ApiResponse<String>> responseBody = ResponseEntity.badRequest().body(ApiResponse.failure(Code.INVALID_CREDENTIALS.getCode(), "아이디 혹은 비밀번호를 다시 입력해주세요"));
+        ResponseEntity<ErrorResponse> responseBody = ResponseEntity.badRequest()
+                .body(ErrorResponse.from(Process.from(Code.INVALID_CREDENTIALS)));
         ObjectMapper objectMapper = new ObjectMapper();
         response.getWriter().write(objectMapper.writeValueAsString(responseBody.getBody()));
     }
