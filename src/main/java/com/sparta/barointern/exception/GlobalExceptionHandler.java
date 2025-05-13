@@ -1,6 +1,8 @@
 package com.sparta.barointern.exception;
 
 import com.sparta.barointern.common.ApiResponse;
+import com.sparta.barointern.common.ErrorResponse;
+import com.sparta.barointern.common.Process;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
-    public ResponseEntity<ApiResponse<String>> handlerBaseExceptionException(BaseException e) {
-        Code code = e.getErrorCode();
-        return ResponseEntity.status(code.getStatus()).body(ApiResponse.of(code.getCode(), code.getMessage(),null));
+    public ResponseEntity<ErrorResponse> handlerBaseExceptionException(BaseException e) {
+        Code code = e.getCode();
+        com.sparta.barointern.common.Process error = Process.from(code);
+
+        return ResponseEntity.status(code.getStatus()).body(ErrorResponse.from(error));
     }
 
     // @Valid 유효성 검사에서 걸리는 예외 처리

@@ -15,7 +15,6 @@ public enum Code {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "잘못된 입력값이 존재합니다."),
     ACCESS_DENIED_EXCEPTION(HttpStatus.FORBIDDEN, "ACCESS_DENIED_EXCEPTION", "권한이 없습니다."),
 
-
     USER_NOT_FOUND(HttpStatus.NOT_FOUND,"USER_NOT_FOUND","해당 유저가 없습니다."),
     USER_ALREADY_USERNAME_EXCEPTION(HttpStatus.BAD_REQUEST, "USER_ALREADY_USERNAME_EXCEPTION", "해당 유저네임이 이미 존재합니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED,"INVALID_CREDENTIALS","아이디 또는 비밀번호가 올바르지 않습니다.")

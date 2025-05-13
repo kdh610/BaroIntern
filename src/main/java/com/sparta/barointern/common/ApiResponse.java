@@ -1,7 +1,6 @@
 package com.sparta.barointern.common;
 
 
-import com.sparta.barointern.exception.Code;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,15 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ApiResponse<T> {
 
-    private String code;
-    private String message;
+    Process process;
     private T data;
 
     // 성공 응답을 위한 메서드
     public static <T> ApiResponse<T> success(T data) {
+
         return ApiResponse.<T>builder()
-                .code(Code.SUCCESS.getCode())
-                .message(Code.SUCCESS.getMessage())
+                .process(Process.success())
                 .data(data)
                 .build();
     }
@@ -29,8 +27,7 @@ public class ApiResponse<T> {
     // 성공 응답을 위한 메시지 포함 메서드
     public static <T> ApiResponse<T> success(T data, String message) {
         return ApiResponse.<T>builder()
-                .code(Code.SUCCESS.getCode())
-                .message(message)
+                .process(Process.success(message))
                 .data(data)
                 .build();
     }
@@ -38,8 +35,7 @@ public class ApiResponse<T> {
     // 실패 응답을 위한 메서드
     public static <T> ApiResponse<T> failure(String code, String message) {
         return ApiResponse.<T>builder()
-                .code(code)
-                .message(message)
+                .process(Process.of(code, message))
                 .data(null)
                 .build();
     }
@@ -47,8 +43,7 @@ public class ApiResponse<T> {
     // of 메서드를 사용하여 ApiResponseData 객체를 생성하는 메서드
     public static <T> ApiResponse<T> of(String code, String message, T data) {
         return ApiResponse.<T>builder()
-                .code(code)
-                .message(message)
+                .process(Process.of(code, message))
                 .data(data)
                 .build();
     }
