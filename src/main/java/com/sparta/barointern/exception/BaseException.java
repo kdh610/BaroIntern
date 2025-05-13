@@ -6,11 +6,9 @@ import lombok.RequiredArgsConstructor;
 import static com.sparta.barointern.exception.Code.INTERNAL_SERVER_ERROR;
 
 @Getter
-@RequiredArgsConstructor
-public class BaseExceiption extends RuntimeException {
+public class BaseException extends RuntimeException {
     private final Code errorCode;
 
-    // 에러 메시지를 받는 생성자
     public BaseException(String message) {
         super(message);
         this.errorCode = INTERNAL_SERVER_ERROR;

@@ -2,10 +2,7 @@ package com.sparta.barointern.entity;
 
 import com.sparta.barointern.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -13,6 +10,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Builder
 @Table(name = "p_user")
 public class User {
 
@@ -24,10 +22,23 @@ public class User {
     private String username;
 
     @Column(nullable = false)
+    private String nickname;
+
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable=false)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+
+    public static User create(String username, String password, String nickname, UserRole userRole) {
+        return User.builder()
+                .username(username)
+                .nickname(nickname)
+                .password(password)
+                .userRole(userRole)
+                .build();
+    }
 
 }

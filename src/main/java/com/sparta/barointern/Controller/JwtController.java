@@ -1,7 +1,8 @@
 package com.sparta.barointern.Controller;
 
+import com.sparta.barointern.Controller.dto.UserJwtDto;
 import com.sparta.barointern.util.jwt.JwtUtil;
-import com.sparta.barointern.dto.UserJwtDto;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

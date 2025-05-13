@@ -1,4 +1,4 @@
-package com.sparta.barointern.dto;
+package com.sparta.barointern.Controller.dto;
 
 import com.sparta.barointern.enums.UserRole;
 import lombok.Getter;
