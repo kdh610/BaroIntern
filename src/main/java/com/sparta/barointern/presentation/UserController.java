@@ -1,12 +1,11 @@
-package com.sparta.barointern.Controller;
+package com.sparta.barointern.presentation;
 
-import com.sparta.barointern.Controller.dto.request.UserSignupRequestDto;
-import com.sparta.barointern.Controller.dto.response.UserResponseDto;
+import com.sparta.barointern.presentation.dto.request.UserSignupRequestDto;
+import com.sparta.barointern.presentation.dto.response.UserResponseDto;
 import com.sparta.barointern.common.ApiResponse;
 
-import com.sparta.barointern.service.UserService;
-import com.sparta.barointern.service.dto.request.UserSignupAppRequestDto;
-import com.sparta.barointern.service.dto.response.UserAppResponseDto;
+import com.sparta.barointern.application.UserService;
+import com.sparta.barointern.application.dto.response.UserAppResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

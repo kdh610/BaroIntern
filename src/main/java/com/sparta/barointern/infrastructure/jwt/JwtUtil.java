@@ -1,13 +1,15 @@
-package com.sparta.barointern.util.jwt;
+package com.sparta.barointern.infrastructure.jwt;
 
 
-import com.sparta.barointern.Controller.dto.UserJwtDto;
+import com.sparta.barointern.domain.enums.UserRole;
+import com.sparta.barointern.presentation.dto.UserJwtDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,7 +19,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.SignatureException;
 import java.util.Date;
 
 @Component
@@ -36,12 +37,12 @@ public class JwtUtil {
     }
 
 
-    public String createJwtToken(UserJwtDto userJwtDto, String category) {
+    public String createJwtToken(String username, UserRole role, String category) {
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .subject(userJwtDto.getUsername())
+                        .subject(username)
                         .claim("category",category)
-                        .claim("role",userJwtDto.getRole())
+                        .claim("role",role)
                         .issuedAt(new Date(System.currentTimeMillis()))
                         .expiration(new Date(System.currentTimeMillis() + TOKEN_TIME))
                         .signWith(secretKey)
@@ -81,6 +82,27 @@ public class JwtUtil {
         return cookie;
     }
 
+    public String getTokenFromCookie(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if(cookies != null){
+            for(Cookie cookie : cookies){
+                if(cookie.getName().equals(AUTHORIZATION_HEADER)){
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getUsername(String token) {
+        String actualToken = token.substring(BEARER_PREFIX.length());
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken).getPayload().getSubject();
+    }
+
+    public String getRole(String token) {
+        String actualToken = token.substring(BEARER_PREFIX.length());
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken).getPayload().get("role", String.class);
+    }
 
 
 

@@ -1,8 +1,7 @@
-package com.sparta.barointern.service.dto.request;
+package com.sparta.barointern.application.dto.request;
 
-import com.sparta.barointern.Controller.dto.request.UserSignupRequestDto;
-import com.sparta.barointern.entity.User;
-import com.sparta.barointern.enums.UserRole;
+import com.sparta.barointern.domain.entity.User;
+import com.sparta.barointern.domain.enums.UserRole;
 import lombok.*;
 
 @Getter

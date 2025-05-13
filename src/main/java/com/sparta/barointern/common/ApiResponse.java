@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ApiResponse<T> {
 
-    private Integer code;
+    private String code;
     private String message;
     private T data;
 
@@ -36,7 +36,7 @@ public class ApiResponse<T> {
     }
 
     // 실패 응답을 위한 메서드
-    public static <T> ApiResponse<T> failure(Integer code, String message) {
+    public static <T> ApiResponse<T> failure(String code, String message) {
         return ApiResponse.<T>builder()
                 .code(code)
                 .message(message)
@@ -45,7 +45,7 @@ public class ApiResponse<T> {
     }
 
     // of 메서드를 사용하여 ApiResponseData 객체를 생성하는 메서드
-    public static <T> ApiResponse<T> of(Integer code, String message, T data) {
+    public static <T> ApiResponse<T> of(String code, String message, T data) {
         return ApiResponse.<T>builder()
                 .code(code)
                 .message(message)

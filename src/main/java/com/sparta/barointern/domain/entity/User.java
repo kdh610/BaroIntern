@@ -1,10 +1,8 @@
-package com.sparta.barointern.entity;
+package com.sparta.barointern.domain.entity;
 
-import com.sparta.barointern.enums.UserRole;
+import com.sparta.barointern.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.UUID;
 
 @Getter
 @AllArgsConstructor

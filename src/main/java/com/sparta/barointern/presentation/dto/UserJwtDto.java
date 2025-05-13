@@ -1,6 +1,6 @@
-package com.sparta.barointern.Controller.dto;
+package com.sparta.barointern.presentation.dto;
 
-import com.sparta.barointern.enums.UserRole;
+import com.sparta.barointern.domain.enums.UserRole;
 import lombok.Getter;
 
 @Getter

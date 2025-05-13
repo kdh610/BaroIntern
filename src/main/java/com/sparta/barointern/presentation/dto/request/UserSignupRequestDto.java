@@ -1,7 +1,7 @@
-package com.sparta.barointern.Controller.dto.request;
+package com.sparta.barointern.presentation.dto.request;
 
-import com.sparta.barointern.enums.UserRole;
-import com.sparta.barointern.service.dto.request.UserSignupAppRequestDto;
+import com.sparta.barointern.domain.enums.UserRole;
+import com.sparta.barointern.application.dto.request.UserSignupAppRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
