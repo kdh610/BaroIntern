@@ -28,8 +28,11 @@ jwt:
 
 springdoc:
   default-produces-media-type: application/json
+  show-login-endpoint: true
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     display-request-duration: true
+
+
