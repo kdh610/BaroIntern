@@ -39,7 +39,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         if(token != null) {
             if(!jwtUtil.validateToken(token)) {
-                log.info("Invalid token for path: {}", request.getRequestURI()); // 경로 추
                 ResponseEntity<ErrorResponse> responseBody = ResponseEntity.badRequest()
                         .body(ErrorResponse.from(Process.from(Code.INVALID_TOKEN)));
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -69,7 +68,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 return;
             }
         }
-        log.info("Next dofilter for path: {}", request.getRequestURI());
+
         filterChain.doFilter(request, response);
     }
 
