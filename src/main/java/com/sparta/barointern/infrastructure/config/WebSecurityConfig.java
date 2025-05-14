@@ -104,6 +104,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/users").permitAll()
+                        .requestMatchers( "/","/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
 
         );
