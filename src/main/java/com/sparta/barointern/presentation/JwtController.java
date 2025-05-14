@@ -30,12 +30,12 @@ public class JwtController {
 //        return accessToken;
 //    }
 //
-//    @GetMapping("/check/jwt")
-//    public boolean checkJwt(@CookieValue(JwtUtil.AUTHORIZATION_HEADER) String token) {
-//        log.info("token: {}", token);
-//        Boolean isvalid = jwtUtil.validateToken(token);
-//
-//        return isvalid;
-//    }
+    @GetMapping("/check/jwt")
+    public boolean checkJwt(@CookieValue(JwtUtil.AUTHORIZATION_HEADER) String token) {
+        log.info("token: {}", token);
+        Boolean isvalid = jwtUtil.validateToken(token);
+
+        return isvalid;
+    }
 
 }

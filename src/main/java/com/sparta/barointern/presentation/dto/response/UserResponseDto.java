@@ -15,13 +15,13 @@ public class UserResponseDto {
     
     private String username;
     private String nickname;
-    private UserRole userRole = UserRole.USER;
+    private UserRole roles = UserRole.USER;
 
     public static UserResponseDto from(UserAppResponseDto userAppResponseDto){
         return UserResponseDto.builder()
                 .username(userAppResponseDto.getUsername())
                 .nickname(userAppResponseDto.getNickname())
-                .userRole(userAppResponseDto.getUserRole())
+                .roles(userAppResponseDto.getUserRole())
                 .build();
     }
 

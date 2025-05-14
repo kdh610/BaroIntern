@@ -7,9 +7,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
 @Builder
-@Table(name = "p_user")
 public class User {
 
     @Id
@@ -28,6 +26,10 @@ public class User {
     @Column(nullable=false)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+    public void grantAdmin() {
+        this.userRole = UserRole.ADMIN;
+    }
 
 
     public static User create(String username, String password, String nickname, UserRole userRole) {

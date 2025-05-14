@@ -1,6 +1,8 @@
 package com.sparta.barointern.infrastructure.config;
 
+import com.sparta.barointern.domain.enums.UserRole;
 import com.sparta.barointern.infrastructure.jwt.JwtAuthenticationFilter;
+import com.sparta.barointern.infrastructure.jwt.JwtAuthorizationFilter;
 import com.sparta.barointern.infrastructure.jwt.JwtUtil;
 import com.sparta.barointern.infrastructure.security.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +49,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         // CSRF 설정
@@ -55,11 +62,15 @@ public class WebSecurityConfig {
         // Form 로그인 방식 disable
         http.formLogin((auth) -> auth.disable());
 
+        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/signup").permitAll() // resources 접근 허용 설정
-                .requestMatchers("/login").permitAll() // resources 접근 허용 설정
+//                        .anyRequest().permitAll()
+                        .requestMatchers("/signup/**").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/admin/users/**").hasRole("ADMIN")
+                        .requestMatchers("/users").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
 
         );

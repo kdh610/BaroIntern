@@ -1,10 +1,17 @@
 package com.sparta.barointern.infrastructure.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.barointern.common.ErrorResponse;
+import com.sparta.barointern.common.Process;
+import com.sparta.barointern.exception.Code;
 import com.sparta.barointern.infrastructure.security.UserDetailsServiceImpl;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -14,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
@@ -26,15 +34,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.getTokenFromCookie(request);
+        log.info("[JWT 인가 Filter] token: {}", token);
 
         if(token != null) {
             if(!jwtUtil.validateToken(token)) {
+                ResponseEntity<ErrorResponse> responseBody = ResponseEntity.badRequest()
+                        .body(ErrorResponse.from(Process.from(Code.INVALID_TOKEN)));
+                ObjectMapper objectMapper = new ObjectMapper();
+                response.getWriter().write(objectMapper.writeValueAsString(responseBody.getBody()));
                 return;
             }
 
-            String username = jwtUtil.getUsername(token);
-            setAuthentication(username);
+            Claims info = jwtUtil.getUserInfoFromToken(token);
+            try {
+                setAuthentication(info.getSubject());
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return;
+            }
+            log.info("dfasdfadsfadsfadsfadsfadsf");
         }
+        log.info("next dofilter");
         filterChain.doFilter(request, response);
     }
 
