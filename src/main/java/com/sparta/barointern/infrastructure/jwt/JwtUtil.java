@@ -2,6 +2,8 @@ package com.sparta.barointern.infrastructure.jwt;
 
 
 import com.sparta.barointern.domain.enums.UserRole;
+import com.sparta.barointern.exception.BaseException;
+import com.sparta.barointern.exception.Code;
 import com.sparta.barointern.presentation.dto.UserJwtDto;
 import io.jsonwebtoken.*;
 
@@ -26,7 +28,8 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
-    public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 7;
+//    public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 7;
+public static final Long TOKEN_TIME = 15000L;
 
     private SecretKey secretKey;
 
@@ -50,7 +53,6 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         log.info("validate token: {}", token);
         boolean b = token.startsWith(BEARER_PREFIX);
-        log.info("b {} ", b);
         try {
             if (token != null && token.startsWith(BEARER_PREFIX)) {
                 String actualToken = token.substring(BEARER_PREFIX.length());
@@ -60,12 +62,16 @@ public class JwtUtil {
             }
         } catch (SecurityException | MalformedJwtException e) {
             log.error("유효하지 않는 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
             log.error("만료된 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         } catch (UnsupportedJwtException e) {
             log.error("원되지 않는 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         } catch (IllegalArgumentException e) {
             log.error("잘못된 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         }
         return false;
     }
