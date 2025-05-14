@@ -14,7 +14,7 @@ public enum Code {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"INTERNAL_SERVER_ERROR","서버에러"),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "잘못된 입력값이 존재합니다."),
 
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND,"USER_NOT_FOUND","해당 유저가 없습니다."),
+    USER_NOT_FOUND(HttpStatus.BAD_REQUEST,"USER_NOT_FOUND","해당 유저가 없습니다."),
     USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER_ALREADY_EXIST", "이미 가입된 사용자입니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED,"INVALID_CREDENTIALS","아이디 또는 비밀번호가 올바르지 않습니다."),
 
