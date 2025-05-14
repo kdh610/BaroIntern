@@ -1,4 +1,4 @@
-package com.sparta.barointern.exception;
+package com.sparta.barointern.infrastructure.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.barointern.common.ErrorResponse;

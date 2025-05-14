@@ -3,10 +3,9 @@ package com.sparta.barointern.application;
 
 
 import com.sparta.barointern.domain.entity.User;
-import com.sparta.barointern.domain.enums.UserRole;
 import com.sparta.barointern.domain.repository.UserRepository;
-import com.sparta.barointern.exception.BaseException;
-import com.sparta.barointern.exception.Code;
+import com.sparta.barointern.infrastructure.exception.BaseException;
+import com.sparta.barointern.infrastructure.exception.Code;
 
 import com.sparta.barointern.application.dto.request.UserSignupAppRequestDto;
 import com.sparta.barointern.application.dto.response.UserAppResponseDto;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

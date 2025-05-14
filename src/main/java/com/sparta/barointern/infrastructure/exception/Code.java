@@ -1,4 +1,4 @@
-package com.sparta.barointern.exception;
+package com.sparta.barointern.infrastructure.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,6 @@ public enum Code {
 
     public String getMessage(Throwable e) {
         return this.getMessage(this.getMessage() + " - " + e.getMessage());
-        // 결과 예시 - "Validation error - Reason why it isn't valid"
     }
 
     public String getMessage(String message) {

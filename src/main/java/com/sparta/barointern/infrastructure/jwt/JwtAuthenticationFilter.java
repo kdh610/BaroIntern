@@ -1,15 +1,12 @@
 package com.sparta.barointern.infrastructure.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.barointern.common.ApiResponse;
 import com.sparta.barointern.common.ErrorResponse;
 import com.sparta.barointern.common.LoginSucessResponse;
 import com.sparta.barointern.common.Process;
 import com.sparta.barointern.domain.entity.Role;
-import com.sparta.barointern.domain.enums.UserRole;
-import com.sparta.barointern.exception.BaseException;
-import com.sparta.barointern.exception.Code;
-import com.sparta.barointern.infrastructure.security.UserDetailsImpl;
+import com.sparta.barointern.infrastructure.exception.Code;
+import com.sparta.barointern.application.security.UserDetailsImpl;
 import com.sparta.barointern.presentation.dto.request.LoginRequestDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

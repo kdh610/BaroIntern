@@ -1,6 +1,6 @@
 package com.sparta.barointern.common;
 
-import com.sparta.barointern.exception.Code;
+import com.sparta.barointern.infrastructure.exception.Code;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
