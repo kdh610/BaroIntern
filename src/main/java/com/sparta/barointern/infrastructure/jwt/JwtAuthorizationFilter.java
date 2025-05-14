@@ -52,9 +52,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 log.error(e.getMessage());
                 return;
             }
-            log.info("dfasdfadsfadsfadsfadsfadsf");
         }
-        log.info("next dofilter");
         filterChain.doFilter(request, response);
     }
 

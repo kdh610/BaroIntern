@@ -5,6 +5,7 @@ import com.sparta.barointern.common.ApiResponse;
 import com.sparta.barointern.common.ErrorResponse;
 import com.sparta.barointern.common.LoginSucessResponse;
 import com.sparta.barointern.common.Process;
+import com.sparta.barointern.domain.entity.Role;
 import com.sparta.barointern.domain.enums.UserRole;
 import com.sparta.barointern.exception.BaseException;
 import com.sparta.barointern.exception.Code;
@@ -52,7 +53,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         log.info("[Jwt 인증 Filter] Successfully authenticated user: " + authResult.getPrincipal());
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
-        UserRole userRole = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getUserRole();
+        Role userRole = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRoles().get(0);
 
         String token = jwtUtil.createJwtToken(username, userRole, "access");
         Cookie cookie = jwtUtil.createCookie(token);

@@ -39,7 +39,7 @@ public class UserService {
         }
 
         String password = passwordEncoder.encode(userSignupRequest.getPassword());
-        User user = User.create(userSignupRequest.getUsername(), password, userSignupRequest.getNickname(), UserRole.USER);
+        User user = User.create(userSignupRequest.getUsername(), password, userSignupRequest.getNickname());
 
 
         userRepository.save(user);

@@ -24,22 +24,19 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<UserResponseDto>> signup(@RequestBody UserSignupRequestDto userSignupRequest) {
-        log.info("일반 회원가입");
+    public ResponseEntity<UserResponseDto> signup(@RequestBody UserSignupRequestDto userSignupRequest) {
         UserAppResponseDto userAppResponseDto = userService.signup(userSignupRequest.toAppDto());
-        return ResponseEntity.ok(ApiResponse.success(UserResponseDto.from(userAppResponseDto)));
+        return ResponseEntity.ok(UserResponseDto.from(userAppResponseDto));
     }
 
     @PostMapping("/signup/admin")
-    public ResponseEntity<ApiResponse<UserResponseDto>> signupAdmin(@RequestBody UserSignupRequestDto userSignupRequest) {
-        log.info("관리자 회원가입");
+    public ResponseEntity<UserResponseDto> signupAdmin(@RequestBody UserSignupRequestDto userSignupRequest) {
         UserAppResponseDto userAppResponseDto = userService.signupAdmin(userSignupRequest.toAppDto());
-        return ResponseEntity.ok(ApiResponse.success(UserResponseDto.from(userAppResponseDto)));
+        return ResponseEntity.ok(UserResponseDto.from(userAppResponseDto));
     }
 
     @PatchMapping("/admin/users/{username}/roles")
     public ResponseEntity<UserResponseDto> grantAdmin(@PathVariable("username") String username){
-        log.info("관리자부여");
         UserAppResponseDto userAppResponseDto = userService.grantAdmin(username);
         return ResponseEntity.ok(UserResponseDto.from(userAppResponseDto));
     }

@@ -1,6 +1,7 @@
 package com.sparta.barointern.infrastructure.jwt;
 
 
+import com.sparta.barointern.domain.entity.Role;
 import com.sparta.barointern.domain.enums.UserRole;
 import com.sparta.barointern.exception.BaseException;
 import com.sparta.barointern.exception.Code;
@@ -28,8 +29,7 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
-//    public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 7;
-public static final Long TOKEN_TIME = 15000L;
+    public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 7;
 
     private SecretKey secretKey;
 
@@ -38,7 +38,7 @@ public static final Long TOKEN_TIME = 15000L;
     }
 
 
-    public String createJwtToken(String username, UserRole role, String category) {
+    public String createJwtToken(String username, Role role, String category) {
         return BEARER_PREFIX +
                 Jwts.builder()
                         .subject(username)
