@@ -5,6 +5,7 @@ import com.sparta.barointern.common.ApiResponse;
 import com.sparta.barointern.common.ErrorResponse;
 import com.sparta.barointern.common.LoginSucessResponse;
 import com.sparta.barointern.common.Process;
+import com.sparta.barointern.domain.entity.Role;
 import com.sparta.barointern.domain.enums.UserRole;
 import com.sparta.barointern.exception.BaseException;
 import com.sparta.barointern.exception.Code;
@@ -36,7 +37,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         try {
             LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
-            log.info("[JwtFilter] Attempting to authenticate user: " + requestDto.getUsername());
+            log.info("[Jwt 인증 Filter] Attempting to authenticate user: " + requestDto.getUsername());
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             requestDto.getUsername(),
@@ -50,12 +51,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        log.info("[JwtFilter] Successfully authenticated user: " + authResult.getPrincipal());
+        log.info("[Jwt 인증 Filter] Successfully authenticated user: " + authResult.getPrincipal());
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
-        UserRole userRole = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getUserRole();
+        Role userRole = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRoles().get(0);
 
         String token = jwtUtil.createJwtToken(username, userRole, "access");
         Cookie cookie = jwtUtil.createCookie(token);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         response.addCookie(cookie);
         ResponseEntity<LoginSucessResponse> responseBody = ResponseEntity.ok(new LoginSucessResponse(token.substring(7)));
         ObjectMapper objectMapper = new ObjectMapper();
@@ -67,7 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void unsuccessfulAuthentication(HttpServletRequest request,
                                               HttpServletResponse response,
                                               AuthenticationException failed) throws IOException, ServletException {
-        log.info("[JwtFilter] Unsuccessful authentication");
+        log.info("[Jwt 인증 Filter] Unsuccessful authentication");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

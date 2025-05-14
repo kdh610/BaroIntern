@@ -16,10 +16,9 @@ public class UserSignupRequestDto {
     private String username;
     private String nickname;
     private String password;
-    private UserRole userRole = UserRole.USER;
 
     public UserSignupAppRequestDto toAppDto(){
-        return UserSignupAppRequestDto.create(this.username, this.password, this.nickname, this.userRole);
+        return UserSignupAppRequestDto.create(this.username, this.password, this.nickname);
     }
 
 }

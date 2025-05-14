@@ -1,13 +1,13 @@
 package com.sparta.barointern.infrastructure.jwt;
 
 
+import com.sparta.barointern.domain.entity.Role;
 import com.sparta.barointern.domain.enums.UserRole;
+import com.sparta.barointern.exception.BaseException;
+import com.sparta.barointern.exception.Code;
 import com.sparta.barointern.presentation.dto.UserJwtDto;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -37,7 +38,7 @@ public class JwtUtil {
     }
 
 
-    public String createJwtToken(String username, UserRole role, String category) {
+    public String createJwtToken(String username, Role role, String category) {
         return BEARER_PREFIX +
                 Jwts.builder()
                         .subject(username)
@@ -50,6 +51,8 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token) {
+        log.info("validate token: {}", token);
+        boolean b = token.startsWith(BEARER_PREFIX);
         try {
             if (token != null && token.startsWith(BEARER_PREFIX)) {
                 String actualToken = token.substring(BEARER_PREFIX.length());
@@ -59,12 +62,16 @@ public class JwtUtil {
             }
         } catch (SecurityException | MalformedJwtException e) {
             log.error("유효하지 않는 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
             log.error("만료된 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         } catch (UnsupportedJwtException e) {
             log.error("원되지 않는 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         } catch (IllegalArgumentException e) {
             log.error("잘못된 JWT 토큰 입니다.");
+            throw new BaseException(Code.INVALID_TOKEN);
         }
         return false;
     }
@@ -87,23 +94,26 @@ public class JwtUtil {
         if(cookies != null){
             for(Cookie cookie : cookies){
                 if(cookie.getName().equals(AUTHORIZATION_HEADER)){
-                    return cookie.getValue();
+                    try{
+                        return URLDecoder.decode(cookie.getValue(),"UTF-8");
+                    }catch (UnsupportedEncodingException e){
+                        return null;
+                    }
                 }
             }
         }
         return null;
     }
 
-    public String getUsername(String token) {
+    public Claims getUserInfoFromToken(String token) {
         String actualToken = token.substring(BEARER_PREFIX.length());
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken).getPayload().getSubject();
+        return Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(actualToken).getBody();
     }
 
     public String getRole(String token) {
         String actualToken = token.substring(BEARER_PREFIX.length());
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken).getPayload().get("role", String.class);
     }
-
 
 
 }

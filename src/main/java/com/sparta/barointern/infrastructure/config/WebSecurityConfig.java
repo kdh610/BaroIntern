@@ -1,10 +1,19 @@
 package com.sparta.barointern.infrastructure.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.barointern.common.ErrorResponse;
+import com.sparta.barointern.common.Process;
+import com.sparta.barointern.domain.enums.UserRole;
+import com.sparta.barointern.exception.Code;
+import com.sparta.barointern.exception.CustomAuthenticationEntryPoint;
 import com.sparta.barointern.infrastructure.jwt.JwtAuthenticationFilter;
+import com.sparta.barointern.infrastructure.jwt.JwtAuthorizationFilter;
 import com.sparta.barointern.infrastructure.jwt.JwtUtil;
 import com.sparta.barointern.infrastructure.security.UserDetailsServiceImpl;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -13,6 +22,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -22,6 +32,7 @@ public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
 
     @Bean
@@ -29,11 +40,13 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration) {
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
@@ -47,6 +60,28 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+
+            ResponseEntity<ErrorResponse> responseBody = ResponseEntity.badRequest()
+                    .body(ErrorResponse.from(Process.from(Code.ACCESS_DENIED)));
+            ObjectMapper objectMapper = new ObjectMapper();
+            response.getWriter().write(objectMapper.writeValueAsString(responseBody.getBody()));
+        };
+    }
+
+
+
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         // CSRF 설정
@@ -55,11 +90,22 @@ public class WebSecurityConfig {
         // Form 로그인 방식 disable
         http.formLogin((auth) -> auth.disable());
 
+        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
+        http.exceptionHandling(exception -> {
+            exception
+                    .authenticationEntryPoint(customAuthenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler());
+
+        });
+
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/signup").permitAll() // resources 접근 허용 설정
-                .requestMatchers("/login").permitAll() // resources 접근 허용 설정
+//                        .anyRequest().permitAll()
+                        .requestMatchers("/signup/**").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/admin/users/**").hasRole("ADMIN")
+                        .requestMatchers("/users").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
 
         );

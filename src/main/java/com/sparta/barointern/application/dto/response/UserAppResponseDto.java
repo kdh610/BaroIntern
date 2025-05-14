@@ -1,11 +1,14 @@
 package com.sparta.barointern.application.dto.response;
 
+import com.sparta.barointern.domain.entity.Role;
 import com.sparta.barointern.domain.entity.User;
 import com.sparta.barointern.domain.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Builder
@@ -15,13 +18,13 @@ public class UserAppResponseDto {
     
     private String username;
     private String nickname;
-    private UserRole userRole = UserRole.USER;
+    private List<Role> roles;
 
     public static UserAppResponseDto from(User user) {
         return UserAppResponseDto.builder()
                 .username(user.getUsername())
                 .nickname(user.getNickname())
-                .userRole(user.getUserRole())
+                .roles(user.getRoles())
                 .build();
     }
 }
