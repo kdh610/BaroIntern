@@ -13,7 +13,7 @@
 ![Image](https://github.com/user-attachments/assets/46bf940c-328f-462c-b5a1-5bf48657a132)
 ![Image](https://github.com/user-attachments/assets/da4914b7-7c87-48ed-8aee-e167030d3daf)
 
-### 중복회원 가입 : username중복시 예외 응답
+-  중복회원 가입 : username중복시 예외 응답
 ![Image](https://github.com/user-attachments/assets/8af34165-ec3e-4179-b5a5-77b44c2f753e)
 
 ### 🔍 2. 로그인
@@ -21,7 +21,7 @@
 ![Image](https://github.com/user-attachments/assets/634254b8-ef7e-4956-8f54-44da3865b28e)
 ![Image](https://github.com/user-attachments/assets/b99f7145-e3dc-479b-a668-0abbc6bf501b)
 
-### Usernmae 또는 password 잘못 입력 : 로그인 실패 예외 응답
+- Usernmae 또는 password 잘못 입력 : 로그인 실패 예외 응답
 ![Image](https://github.com/user-attachments/assets/0e9f1f33-413c-499e-8dc6-e92e31fa26f9)
 
 ### 🔍  3. 관리자 권한 부여
