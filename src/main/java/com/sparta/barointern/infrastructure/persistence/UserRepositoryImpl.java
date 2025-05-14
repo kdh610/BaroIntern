@@ -2,8 +2,8 @@ package com.sparta.barointern.infrastructure.persistence;
 
 import com.sparta.barointern.domain.entity.User;
 import com.sparta.barointern.domain.repository.UserRepository;
-import com.sparta.barointern.exception.BaseException;
-import com.sparta.barointern.exception.Code;
+import com.sparta.barointern.infrastructure.exception.BaseException;
+import com.sparta.barointern.infrastructure.exception.Code;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

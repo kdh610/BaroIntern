@@ -1,8 +1,8 @@
-package com.sparta.barointern.exception;
+package com.sparta.barointern.infrastructure.exception;
 
 import lombok.Getter;
 
-import static com.sparta.barointern.exception.Code.INTERNAL_SERVER_ERROR;
+import static com.sparta.barointern.infrastructure.exception.Code.INTERNAL_SERVER_ERROR;
 
 
 @Getter

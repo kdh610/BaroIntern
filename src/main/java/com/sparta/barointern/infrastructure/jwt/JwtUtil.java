@@ -2,10 +2,8 @@ package com.sparta.barointern.infrastructure.jwt;
 
 
 import com.sparta.barointern.domain.entity.Role;
-import com.sparta.barointern.domain.enums.UserRole;
-import com.sparta.barointern.exception.BaseException;
-import com.sparta.barointern.exception.Code;
-import com.sparta.barointern.presentation.dto.UserJwtDto;
+import com.sparta.barointern.infrastructure.exception.BaseException;
+import com.sparta.barointern.infrastructure.exception.Code;
 import io.jsonwebtoken.*;
 
 import jakarta.servlet.http.Cookie;
@@ -27,7 +25,6 @@ import java.util.Date;
 public class JwtUtil {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String AUTHORIZATION_KEY = "auth";
     public static final String BEARER_PREFIX = "Bearer ";
     public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 7;
 
@@ -52,11 +49,9 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         log.info("validate token: {}", token);
-        boolean b = token.startsWith(BEARER_PREFIX);
         try {
-            if (token != null && token.startsWith(BEARER_PREFIX)) {
+            if (isExistToken(token)) {
                 String actualToken = token.substring(BEARER_PREFIX.length());
-                log.info("JWTUTIL token: {}", actualToken);
                 Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken);
                 return true;
             }
@@ -75,6 +70,11 @@ public class JwtUtil {
         }
         return false;
     }
+
+    private static boolean isExistToken(String token) {
+        return token != null && token.startsWith(BEARER_PREFIX);
+    }
+
 
     public Cookie createCookie(String token){
         try {

@@ -12,12 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 public class UserSignupAppRequestDto {
 
-
-
     private String username;
     private String nickname;
     private String password;
-//    private List<UserRole> roles;
 
     public User toEntity() {
         return User.create(this.username, this.password, this.nickname);
@@ -28,7 +25,6 @@ public class UserSignupAppRequestDto {
                 .username(username)
                 .password(password)
                 .nickname(nickname)
-//                .roles(userRole)
                 .build();
     }
 

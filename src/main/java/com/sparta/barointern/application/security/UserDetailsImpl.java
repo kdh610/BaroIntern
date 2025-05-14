@@ -1,4 +1,4 @@
-package com.sparta.barointern.infrastructure.security;
+package com.sparta.barointern.application.security;
 
 import com.sparta.barointern.domain.entity.Role;
 import com.sparta.barointern.domain.entity.User;
@@ -28,7 +28,6 @@ public class UserDetailsImpl implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Role role = user.getRoles().get(0);
         String authority = role.getRole().getRoleName();
-        log.info("[UserDetailsImpl] authority: " + authority);
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(simpleGrantedAuthority);
