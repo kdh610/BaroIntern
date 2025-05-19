@@ -1,7 +1,5 @@
 
-### 📌 API 엔드포인트 URL : http://ec2-15-164-171-100.ap-northeast-2.compute.amazonaws.com:8080/
-### 📌 Swagger UI 주소 : http://ec2-15-164-171-100.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html
----
+
 
 ## 💻 API 명세
 ### 🔍 1. 회원가입
