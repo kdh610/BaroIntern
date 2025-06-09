@@ -39,4 +39,10 @@ public class UserRepositoryImpl implements UserRepository {
     public List<User> findAll() {
         return store.values().stream().collect(Collectors.toList());
     }
+
+    @Override
+    public void deleteAll() {
+        store.clear();
+    }
+
 }
