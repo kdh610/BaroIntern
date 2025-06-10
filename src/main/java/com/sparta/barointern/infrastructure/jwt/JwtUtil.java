@@ -19,6 +19,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -26,7 +27,7 @@ public class JwtUtil {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";
-    public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 7;
+    public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 30;
 
 
     private SecretKey secretKey;
@@ -41,7 +42,7 @@ public class JwtUtil {
                 Jwts.builder()
                         .subject(username)
                         .claim("category",category)
-                        .claim("role",role)
+                        .claim("role",role.getRole().getRoleName())
                         .issuedAt(new Date(System.currentTimeMillis()))
                         .expiration(new Date(System.currentTimeMillis() + TOKEN_TIME))
                         .signWith(secretKey)
@@ -58,7 +59,7 @@ public class JwtUtil {
             }else{
                 throw new BaseException(Code.INVALID_TOKEN);
             }
-        } catch (SecurityException | MalformedJwtException e) {
+        } catch (SecurityException | MalformedJwtException | SignatureException e) {
             log.error("유효하지 않는 JWT 토큰 입니다.");
             throw new BaseException(Code.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
@@ -107,14 +108,30 @@ public class JwtUtil {
         return null;
     }
 
+    public String getTokenFromRequest(HttpServletRequest request){
+        String authorization = request.getHeader("Authorization");
+
+        System.out.println(authorization);
+        if(authorization!=null && authorization.startsWith(BEARER_PREFIX)){
+            System.out.println("auth: " + authorization);
+
+            return authorization;
+        }
+        return null;
+    }
+
+
     public Claims getUserInfoFromToken(String token) {
         String actualToken = token.substring(BEARER_PREFIX.length());
-        return Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(actualToken).getBody();
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken).getPayload();
     }
 
     public String getRole(String token) {
         String actualToken = token.substring(BEARER_PREFIX.length());
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken).getPayload().get("role", String.class);
+
+        Map role = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken).getPayload().get("role", Map.class);
+        return (String)role.get("role");
+
     }
 
 

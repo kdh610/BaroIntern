@@ -53,11 +53,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Role userRole = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRoles().get(0);
 
         String token = jwtUtil.createJwtToken(username, userRole, "access");
-        Cookie cookie = jwtUtil.createCookie(token);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.addCookie(cookie);
+
         ResponseEntity<LoginSucessResponse> responseBody = ResponseEntity.ok(new LoginSucessResponse(token.substring(7)));
         ObjectMapper objectMapper = new ObjectMapper();
         response.getWriter().write(objectMapper.writeValueAsString(responseBody.getBody()));
