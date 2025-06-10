@@ -1,4 +1,12 @@
-# API 엔드포인트 URL : http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/
+# API 엔드포인트 URL : 
+일반 회원가입
+http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/signup
+관리자 회원가입
+http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/signup/admin
+로그인
+http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/login
+관리자 권한 부여
+http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/admin/users/{username}/roles
 # Swagger UI 주소 : http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html
 
 
