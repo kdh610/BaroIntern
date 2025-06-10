@@ -14,4 +14,5 @@ public interface UserRepository {
     void save(User user);
     User grantAdmin(String username);
     List<User> findAll();
+    void deleteAll();
 }

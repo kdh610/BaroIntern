@@ -28,6 +28,7 @@ public class JwtUtil {
     public static final String BEARER_PREFIX = "Bearer ";
     public static final Long TOKEN_TIME = 60 * 1000L * 60 * 24 * 7;
 
+
     private SecretKey secretKey;
 
     public JwtUtil(@Value("${jwt.secret.key}") String secret){
@@ -54,6 +55,8 @@ public class JwtUtil {
                 String actualToken = token.substring(BEARER_PREFIX.length());
                 Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(actualToken);
                 return true;
+            }else{
+                throw new BaseException(Code.INVALID_TOKEN);
             }
         } catch (SecurityException | MalformedJwtException e) {
             log.error("유효하지 않는 JWT 토큰 입니다.");
@@ -62,13 +65,12 @@ public class JwtUtil {
             log.error("만료된 JWT 토큰 입니다.");
             throw new BaseException(Code.INVALID_TOKEN);
         } catch (UnsupportedJwtException e) {
-            log.error("원되지 않는 JWT 토큰 입니다.");
+            log.error("지원되지 않는 JWT 토큰 입니다.");
             throw new BaseException(Code.INVALID_TOKEN);
         } catch (IllegalArgumentException e) {
             log.error("잘못된 JWT 토큰 입니다.");
             throw new BaseException(Code.INVALID_TOKEN);
         }
-        return false;
     }
 
     private static boolean isExistToken(String token) {

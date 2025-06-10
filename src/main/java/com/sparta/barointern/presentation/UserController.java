@@ -1,21 +1,19 @@
 package com.sparta.barointern.presentation;
 
-import com.sparta.barointern.presentation.dto.request.UserSignupRequestDto;
-import com.sparta.barointern.presentation.dto.response.UserResponseDto;
-import com.sparta.barointern.common.ApiResponse;
-
 import com.sparta.barointern.application.UserService;
 import com.sparta.barointern.application.dto.response.UserAppResponseDto;
+import com.sparta.barointern.common.ApiResponse;
+import com.sparta.barointern.presentation.dto.request.UserSignupRequestDto;
+import com.sparta.barointern.presentation.dto.response.UserResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,14 +27,14 @@ public class UserController {
 
     @Operation(summary = "일반 회원 가입", description = "사용자 이름, 닉네임, 비밀번호 입력", tags = {"사용자 관리 API"})
     @PostMapping("/signup")
-    public ResponseEntity<UserResponseDto> signup(@RequestBody UserSignupRequestDto userSignupRequest) {
+    public ResponseEntity<UserResponseDto> signup(@Valid @RequestBody UserSignupRequestDto userSignupRequest) {
         UserAppResponseDto userAppResponseDto = userService.signup(userSignupRequest.toAppDto());
         return ResponseEntity.ok(UserResponseDto.from(userAppResponseDto));
     }
 
     @Operation(summary = "관리자 회원 가입", description = "사용자 이름, 닉네임, 비밀번호 입력", tags = {"사용자 관리 API"})
     @PostMapping("/signup/admin")
-    public ResponseEntity<UserResponseDto> signupAdmin(@RequestBody UserSignupRequestDto userSignupRequest) {
+    public ResponseEntity<UserResponseDto> signupAdmin(@Valid @RequestBody UserSignupRequestDto userSignupRequest) {
         UserAppResponseDto userAppResponseDto = userService.signupAdmin(userSignupRequest.toAppDto());
         return ResponseEntity.ok(UserResponseDto.from(userAppResponseDto));
     }
@@ -58,6 +56,12 @@ public class UserController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(collect);
+    }
+
+    @DeleteMapping("/users")
+    public ResponseEntity<ApiResponse> deleteAllUsers() {
+        userService.deleteAll();
+        return ResponseEntity.ok(new ApiResponse());
     }
 
 

@@ -2,12 +2,11 @@ package com.sparta.barointern;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.barointern.domain.repository.UserRepository;
 import com.sparta.barointern.infrastructure.jwt.JwtUtil;
 import com.sparta.barointern.presentation.dto.request.UserSignupRequestDto;
 import jakarta.servlet.http.Cookie;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,8 +36,39 @@ class BarointernApplicationTests {
 	@Autowired
 	private JwtUtil jwtUtil;
 
+	@Autowired
+	private UserRepository userRepository;
+
+
+	@AfterEach
+	void tearDown() {
+		userRepository.deleteAll();
+	}
+
+
 	@Test
-	@DisplayName("관리자, 일반 회원가입 성공, 중복회원가입 실패")
+	@DisplayName("일반 회원가입 성공")
+	void normalUserSignUp() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("signUp")
+				.password("password")
+				.nickname("test")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(jsonPath("$.username").value("signUp"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"))
+		;
+	}
+
+	@Test
+	@DisplayName("중복회원가입")
 	void signUp() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
 				.username("signUp")
@@ -63,31 +93,14 @@ class BarointernApplicationTests {
 						.content(objectMapper.writeValueAsString(reqest)))
 				.andExpect((ResultMatcher) status().isBadRequest())
 				.andExpect(jsonPath("$.error").exists())
-				.andExpect(jsonPath("$.error.code").value("USER_ALREADY_EXIST"))
+				.andExpect(jsonPath("$.error.code").value("USER_ALREADY_EXISTS"))
 				.andExpect(jsonPath("$.error.message").value("이미 가입된 사용자입니다."))
-		;
-
-
-		// 관리자 회원가입
-		UserSignupRequestDto reqestAdmin = UserSignupRequestDto.builder()
-				.username("testAdmin")
-				.password("password")
-				.nickname("admin")
-				.build();
-
-		mockMvc.perform(MockMvcRequestBuilders.post("/signup/admin")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(reqestAdmin)))
-				.andExpect((ResultMatcher) status().isOk())
-				.andExpect(jsonPath("$.username").value("testAdmin"))
-				.andExpect(jsonPath("$.nickname").value("admin"))
-				.andExpect(jsonPath("$.roles").isArray())
-				.andExpect(jsonPath("$.roles[0].role").value("ADMIN"))
 		;
 	}
 
+
 	@Test
-	@DisplayName("로그인 & JWT토큰 검증 성공")
+	@DisplayName("로그인 성공")
 	void  login() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
 				.username("login")
@@ -99,7 +112,7 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqest)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("login"))
 				.andExpect(jsonPath("$.nickname").value("test"))
 				.andExpect(jsonPath("$.roles").isArray())
@@ -111,21 +124,19 @@ class BarointernApplicationTests {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(loginRequestDto)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.token").exists())
 				.andReturn();
 		String token = mvcResult.getResponse().getCookie("Authorization").getValue();
-		System.out.println(token);
 		String decode = URLDecoder.decode(token, StandardCharsets.UTF_8);
-		System.out.println(decode);
+
 		boolean validateToken = jwtUtil.validateToken(decode);
 		Assertions.assertTrue(validateToken);
-
 	}
 
 	@Test
-	@DisplayName("로그인 실패")
-	void  loginFail() throws Exception {
+	@DisplayName("잘못된 비밀번호 로그인 실패")
+	void  invalidPwLoginFail() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
 				.username("loginFail")
 				.password("password")
@@ -136,28 +147,113 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqest)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("loginFail"))
 				.andExpect(jsonPath("$.nickname").value("test"))
 				.andExpect(jsonPath("$.roles").isArray())
 				.andExpect(jsonPath("$.roles[0].role").value("USER"))
 		;
 
-		LoginRequestDto loginRequestDto = new LoginRequestDto("loginFail", "wrongpassword");
-
+		LoginRequestDto wrongPasswordRequest = new LoginRequestDto("loginFail", "wrongpassword");
 		mockMvc.perform(MockMvcRequestBuilders.post("/login")
 						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(loginRequestDto)))
-				.andExpect((ResultMatcher) status().isUnauthorized())
+						.content(objectMapper.writeValueAsString(wrongPasswordRequest)))
+				.andExpect(status().isUnauthorized())
 				.andExpect(jsonPath("$.error").exists())
 				.andExpect(jsonPath("$.error.code").value("INVALID_CREDENTIALS"))
 				.andExpect(jsonPath("$.error.message").value("아이디 또는 비밀번호가 올바르지 않습니다."));
 	}
 
 	@Test
-	@DisplayName("관리자 권한 부여 실패 & 성공")
-	void  grantAdmin() throws Exception {
+	@DisplayName("잘못된 아이디 로그인 실패")
+	void  invalidIdLoginFail() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("loginFail")
+				.password("password")
+				.nickname("test")
+				.build();
 
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("loginFail"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"))
+		;
+
+		LoginRequestDto wrongIdRequest = new LoginRequestDto("LoginFail", "password");
+		mockMvc.perform(MockMvcRequestBuilders.post("/login")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(wrongIdRequest)))
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("INVALID_CREDENTIALS"))
+				.andExpect(jsonPath("$.error.message").value("아이디 또는 비밀번호가 올바르지 않습니다."));
+	}
+
+	@Test
+	@DisplayName("관리자 권한 부여 성공")
+	void grantAdminSuccess() throws Exception {
+		// 일반 유저 등록
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("normalUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(jsonPath("$.username").value("normalUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"));
+
+
+		// 관리자 유저 등록
+		UserSignupRequestDto reqestAdmin = UserSignupRequestDto.builder()
+				.username("adminUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup/admin")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqestAdmin)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("adminUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("ADMIN"));
+
+		// 관리자 로그인
+		LoginRequestDto loginRequestDto = new LoginRequestDto("adminUser", "password");
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(loginRequestDto)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.token").exists())
+				.andReturn();
+		// 관리자 JWT토큰 값
+		Cookie cookie = mvcResult.getResponse().getCookie("Authorization");
+
+		// 관리자가 normalUser role관리자로 변경 성공
+		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/normalUser/roles")
+						.contentType(MediaType.APPLICATION_JSON)
+						.cookie(cookie))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("normalUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("ADMIN"));
+	}
+
+
+	@Test
+	@DisplayName("관리자 권한 부여 실패")
+	void  grantAdminFail() throws Exception {
 		// 일반 유저 등록
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
 				.username("normalUser")
@@ -190,9 +286,11 @@ class BarointernApplicationTests {
 				.andExpect(jsonPath("$.error").exists())
 				.andExpect(jsonPath("$.error.code").value("ACCESS_DENIED"))
 				.andExpect(jsonPath("$.error.message").value("관리자 권한이 필요한 요청입니다. 접근 권한이 없습니다."));
+	}
 
-
-
+	@Test
+	@DisplayName("존재하지 않는 유저 관리자 권한 부여 실패")
+	void  grantAdminForNotExistUserFail() throws Exception {
 		// 관리자 유저 등록
 		UserSignupRequestDto reqestAdmin = UserSignupRequestDto.builder()
 				.username("adminUser")
@@ -202,7 +300,7 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup/admin")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqestAdmin)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("adminUser"))
 				.andExpect(jsonPath("$.nickname").value("test"))
 				.andExpect(jsonPath("$.roles").isArray())
@@ -213,25 +311,21 @@ class BarointernApplicationTests {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(loginRequestDto)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.token").exists())
 				.andReturn();
 		// 관리자 JWT토큰 값
 		Cookie cookie = mvcResult.getResponse().getCookie("Authorization");
 
 		// 관리자가 normalUser role관리자로 변경 성공
-		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/normalUser/roles")
+		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/notuser/roles")
 						.contentType(MediaType.APPLICATION_JSON)
 						.cookie(cookie))
-				.andExpect((ResultMatcher) status().isOk())
-				.andExpect(jsonPath("$.username").value("normalUser"))
-				.andExpect(jsonPath("$.nickname").value("test"))
-				.andExpect(jsonPath("$.roles").isArray())
-				.andExpect(jsonPath("$.roles[0].role").value("ADMIN"));
-
-
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("USER_NOT_FOUND"))
+				.andExpect(jsonPath("$.error.message").value("해당 유저가 없습니다."));
 	}
-
 
 
 
