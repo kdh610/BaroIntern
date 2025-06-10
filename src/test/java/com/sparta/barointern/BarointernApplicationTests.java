@@ -135,8 +135,8 @@ class BarointernApplicationTests {
 	}
 
 	@Test
-	@DisplayName("잘못된 계정정보 로그인 실패")
-	void  loginFail() throws Exception {
+	@DisplayName("잘못된 비밀번호 로그인 실패")
+	void  invalidPwLoginFail() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
 				.username("loginFail")
 				.password("password")
@@ -162,6 +162,27 @@ class BarointernApplicationTests {
 				.andExpect(jsonPath("$.error").exists())
 				.andExpect(jsonPath("$.error.code").value("INVALID_CREDENTIALS"))
 				.andExpect(jsonPath("$.error.message").value("아이디 또는 비밀번호가 올바르지 않습니다."));
+	}
+
+	@Test
+	@DisplayName("잘못된 아이디 로그인 실패")
+	void  invalidIdLoginFail() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("loginFail")
+				.password("password")
+				.nickname("test")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("loginFail"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"))
+		;
 
 		LoginRequestDto wrongIdRequest = new LoginRequestDto("LoginFail", "password");
 		mockMvc.perform(MockMvcRequestBuilders.post("/login")

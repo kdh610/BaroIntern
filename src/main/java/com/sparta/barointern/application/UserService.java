@@ -56,4 +56,8 @@ public class UserService {
         return list;
     }
 
+    public void deleteAll(){
+        userRepository.deleteAll();
+    }
+
 }
