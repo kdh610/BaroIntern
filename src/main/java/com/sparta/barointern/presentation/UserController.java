@@ -7,6 +7,7 @@ import com.sparta.barointern.presentation.dto.request.UserSignupRequestDto;
 import com.sparta.barointern.presentation.dto.response.UserResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,7 @@ public class UserController {
     }
 
     @Operation(summary = "관리자 권한 부여", description = "{username}회원의 권한 관리자로 변경", tags = {"사용자 관리 API"})
+    @SecurityRequirement(name = "bearerAuth")
     @PatchMapping("/admin/users/{username}/roles")
     public ResponseEntity<UserResponseDto> grantAdmin(
             @Parameter(description = "관리자 권한 부여받을 유저네임")
