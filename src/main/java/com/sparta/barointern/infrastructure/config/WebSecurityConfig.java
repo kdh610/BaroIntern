@@ -5,6 +5,7 @@ import com.sparta.barointern.common.ErrorResponse;
 import com.sparta.barointern.common.Process;
 import com.sparta.barointern.infrastructure.exception.Code;
 import com.sparta.barointern.infrastructure.exception.CustomAuthenticationEntryPoint;
+import com.sparta.barointern.infrastructure.exception.GlobalExceptionHandlerFilter;
 import com.sparta.barointern.infrastructure.jwt.JwtAuthenticationFilter;
 import com.sparta.barointern.infrastructure.jwt.JwtAuthorizationFilter;
 import com.sparta.barointern.infrastructure.jwt.JwtUtil;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -31,6 +33,7 @@ public class WebSecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final GlobalExceptionHandlerFilter globalExceptionHandlerFilter;
 
 
     @Bean
@@ -38,11 +41,12 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, CustomAuthenticationEntryPoint customAuthenticationEntryPoint, GlobalExceptionHandlerFilter globalExceptionHandlerFilter) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.globalExceptionHandlerFilter = globalExceptionHandlerFilter;
     }
 
     @Bean
@@ -88,6 +92,7 @@ public class WebSecurityConfig {
         // Form 로그인 방식 disable
         http.formLogin((auth) -> auth.disable());
 
+        http.addFilterBefore(globalExceptionHandlerFilter, LogoutFilter.class);
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 

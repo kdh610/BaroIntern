@@ -111,10 +111,7 @@ public class JwtUtil {
     public String getTokenFromRequest(HttpServletRequest request){
         String authorization = request.getHeader("Authorization");
 
-        System.out.println(authorization);
         if(authorization!=null && authorization.startsWith(BEARER_PREFIX)){
-            System.out.println("auth: " + authorization);
-
             return authorization;
         }
         return null;

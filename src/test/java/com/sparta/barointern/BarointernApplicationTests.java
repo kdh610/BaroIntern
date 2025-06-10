@@ -59,7 +59,7 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqest)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("signUp"))
 				.andExpect(jsonPath("$.nickname").value("test"))
 				.andExpect(jsonPath("$.roles").isArray())
@@ -140,7 +140,7 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqest)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("signUp"))
 				.andExpect(jsonPath("$.nickname").value("test"))
 				.andExpect(jsonPath("$.roles").isArray())
@@ -151,7 +151,7 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqest)))
-				.andExpect((ResultMatcher) status().isBadRequest())
+				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.error").exists())
 				.andExpect(jsonPath("$.error.code").value("USER_ALREADY_EXISTS"))
 				.andExpect(jsonPath("$.error.message").value("이미 가입된 사용자입니다."))
@@ -187,10 +187,9 @@ class BarointernApplicationTests {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.token").exists())
 				.andReturn();
-		String token = mvcResult.getResponse().getCookie("Authorization").getValue();
-		String decode = URLDecoder.decode(token, StandardCharsets.UTF_8);
+		String token = mvcResult.getResponse().getHeader("Authorization");
 
-		boolean validateToken = jwtUtil.validateToken(decode);
+		boolean validateToken = jwtUtil.validateToken(token);
 		Assertions.assertTrue(validateToken);
 	}
 
@@ -266,7 +265,7 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqest)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("normalUser"))
 				.andExpect(jsonPath("$.nickname").value("test"))
 				.andExpect(jsonPath("$.roles").isArray())
@@ -297,12 +296,13 @@ class BarointernApplicationTests {
 				.andExpect(jsonPath("$.token").exists())
 				.andReturn();
 		// 관리자 JWT토큰 값
-		Cookie cookie = mvcResult.getResponse().getCookie("Authorization");
+
+		String authorization = mvcResult.getResponse().getHeader("Authorization");
 
 		// 관리자가 normalUser role관리자로 변경 성공
 		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/normalUser/roles")
 						.contentType(MediaType.APPLICATION_JSON)
-						.cookie(cookie))
+						.header("Authorization", authorization))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.username").value("normalUser"))
 				.andExpect(jsonPath("$.nickname").value("test"))
@@ -330,19 +330,19 @@ class BarointernApplicationTests {
 				.andExpect(jsonPath("$.roles[0].role").value("USER"));
 		// 일반유저 로그인
 		LoginRequestDto loginRequest = new LoginRequestDto("normalUser", "password");
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(loginRequest)))
-				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.token").exists())
 				.andReturn();
 		// 일반유저 JWT토큰 값
-		Cookie cookieNormal = result.getResponse().getCookie("Authorization");
+		String authorization = mvcResult.getResponse().getHeader("Authorization");
 		// 일반유저가 role관리자로 변경 (접근 제한)
 		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/normalUser/roles")
 						.contentType(MediaType.APPLICATION_JSON)
-						.cookie(cookieNormal))
-				.andExpect((ResultMatcher) status().isForbidden())
+						.header("Authorization", authorization))
+				.andExpect(status().isForbidden())
 				.andExpect(jsonPath("$.error").exists())
 				.andExpect(jsonPath("$.error.code").value("ACCESS_DENIED"))
 				.andExpect(jsonPath("$.error.message").value("관리자 권한이 필요한 요청입니다. 접근 권한이 없습니다."));
@@ -375,18 +375,173 @@ class BarointernApplicationTests {
 				.andExpect(jsonPath("$.token").exists())
 				.andReturn();
 		// 관리자 JWT토큰 값
-		Cookie cookie = mvcResult.getResponse().getCookie("Authorization");
+		String authorization = mvcResult.getResponse().getHeader("Authorization");
 
 		// 관리자가 normalUser role관리자로 변경 성공
 		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/notuser/roles")
 						.contentType(MediaType.APPLICATION_JSON)
-						.cookie(cookie))
+						.header("Authorization", authorization))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.error").exists())
 				.andExpect(jsonPath("$.error.code").value("USER_NOT_FOUND"))
 				.andExpect(jsonPath("$.error.message").value("해당 유저가 없습니다."));
 	}
 
+	@Test
+	@DisplayName("토큰없이 접근")
+	void requestWithoutToken() throws Exception {
+		// 일반 유저 등록
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("normalUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("normalUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"));
+
+
+		// 관리자 유저 등록
+		UserSignupRequestDto reqestAdmin = UserSignupRequestDto.builder()
+				.username("adminUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup/admin")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqestAdmin)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("adminUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("ADMIN"));
+
+		// 관리자 로그인
+		LoginRequestDto loginRequestDto = new LoginRequestDto("adminUser", "password");
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(loginRequestDto)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.token").exists())
+				.andReturn();
+		// 관리자 JWT토큰 값
+		String authorization = mvcResult.getResponse().getHeader("Authorization");
+
+		// 토큰없이 접근
+		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/normalUser/roles")
+						.contentType(MediaType.APPLICATION_JSON)
+						)
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("INVALID_TOKEN"))
+				.andExpect(jsonPath("$.error.message").value("유효하지 않은 인증 토큰입니다."
+				));
+	}
+
+	@Test
+	@DisplayName("만료된 토큰 접근")
+	void requestWithExpiredToken() throws Exception {
+		// 일반 유저 등록
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("normalUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("normalUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"));
+
+
+		// 관리자 유저 등록
+		UserSignupRequestDto reqestAdmin = UserSignupRequestDto.builder()
+				.username("adminUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup/admin")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqestAdmin)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("adminUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("ADMIN"));
+
+
+		String authorization = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiY2F0ZWdvcnkiOiJhY2Nlc3MiLCJyb2xlIjp7InJvbGUiOiJVU0VSIn0sImlhdCI6MTc0OTQ0OTU3OSwiZXhwIjoxNzQ5NDQ5NTgwfQ.NNXwzhI49_H3LfbKYaapPedNAgVrLg8SQxNyraQrDYM";
+
+		// 만료된 토큰 접근
+		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/normalUser/roles")
+						.contentType(MediaType.APPLICATION_JSON)
+						.header("Authorization", authorization)
+				)
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("INVALID_TOKEN"))
+				.andExpect(jsonPath("$.error.message").value("유효하지 않은 인증 토큰입니다."
+				));
+	}
+
+
+	@Test
+	@DisplayName("잘못된 형식의 토큰 접근")
+	void requestWithWrongToken() throws Exception {
+		// 일반 유저 등록
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("normalUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("normalUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"));
+
+
+		// 관리자 유저 등록
+		UserSignupRequestDto reqestAdmin = UserSignupRequestDto.builder()
+				.username("adminUser")
+				.password("password")
+				.nickname("test")
+				.build();
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup/admin")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqestAdmin)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.username").value("adminUser"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("ADMIN"));
+
+
+		// Bearer 없는 잘못된 형식의 토큰
+		String authorization = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiY2F0ZWdvcnkiOiJhY2Nlc3MiLCJyb2xlIjp7InJvbGUiOiJVU0VSIn0sImlhdCI6MTc0OTQ0OTU3OSwiZXhwIjoxNzQ5NDQ5NTgwfQ.NNXwzhI49_H3LfbKYaapPedNAgVrLg8SQxNyraQrDYM";
+
+		// 만료된 토큰 접근
+		mockMvc.perform(MockMvcRequestBuilders.patch("/admin/users/normalUser/roles")
+						.contentType(MediaType.APPLICATION_JSON)
+						.header("Authorization", authorization)
+				)
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("INVALID_TOKEN"))
+				.andExpect(jsonPath("$.error.message").value("유효하지 않은 인증 토큰입니다."
+				));
+	}
 
 
 	static class LoginRequestDto {

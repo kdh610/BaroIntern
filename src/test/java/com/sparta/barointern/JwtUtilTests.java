@@ -39,7 +39,7 @@ class JwtUtilTests {
 	private final String WRONG_SECRET_KEY = "this-is-a-completely-different-fake-secret-key-67890";
 
 	@Test
-	@DisplayName("서명이 유효하지 않은 토큰을 검증")
+	@DisplayName("서명 검증 (서버의 비밀 키로 서명 확인)")
 	void validateToken_withInvalidSignature_shouldThrowException() {
 		JwtUtil attackerJwtUtil = new JwtUtil(WRONG_SECRET_KEY);
 		String invalidSignatureToken = attackerJwtUtil.createJwtToken("testUser", Role.create(UserRole.USER), "access");
@@ -63,14 +63,14 @@ class JwtUtilTests {
 	}
 
 	@Test
-	@DisplayName("Jwt 토큰 만료 검증")
+	@DisplayName("Jwt 토큰만료 여부 확인")
 	void validateExpiredJwtToken(){
 		assertThrows(BaseException.class,
 				() -> jwtUtil.validateToken("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiY2F0ZWdvcnkiOiJhY2Nlc3MiLCJyb2xlIjp7InJvbGUiOiJVU0VSIn0sImlhdCI6MTc0OTQ0OTU3OSwiZXhwIjoxNzQ5NDQ5NTgwfQ.NNXwzhI49_H3LfbKYaapPedNAgVrLg8SQxNyraQrDYM"));
 	}
 
 	@Test
-	@DisplayName("Jwt 토큰 없이 접근 검증")
+	@DisplayName("Jwt 토큰 존재 여부 확인")
 	void validateNoJwtToken(){
 		assertThrows(BaseException.class,
 				() -> jwtUtil.validateToken(null));
@@ -84,7 +84,7 @@ class JwtUtilTests {
 	}
 
 	@Test
-	@DisplayName("Jwt 토큰 권한 정보 추출")
+	@DisplayName("Jwt 토큰에 포함된 권한 정보 추출")
 	void extractAuthorizationJwtToken(){
 		String role = jwtUtil.getRole("Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0IiwiY2F0ZWdvcnkiOiJhY2Nlc3MiLCJyb2xlIjp7InJvbGUiOiJVU0VSIn0sImlhdCI6MTc0OTUzMjIwMiwiZXhwIjoxNzUwMTM3MDAyfQ.staiAHqU0jMTfUzAOP0KjF0JHhbL81-NgM49RBgp-Sk"
 	);
@@ -116,7 +116,7 @@ class JwtUtilTests {
 	}
 
 	@Test
-	@DisplayName("유효한 JWT로 요청 시 필터가 SecurityContext에 인증 정보를 설정")
+	@DisplayName("SecurityContext에 인증 정보 설정")
 	void givenValidJwt_whenFilterRuns_thenSecurityContextIsPopulated() throws ServletException, IOException {
 		UserSignupRequestDto user = UserSignupRequestDto.builder()
 				.username("testUser")
