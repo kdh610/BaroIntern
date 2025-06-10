@@ -90,7 +90,7 @@ class BarointernApplicationTests {
 	@DisplayName("회원가입 username validation 실패")
 	void invalidUsernameSignUp() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
-				.username("")
+				.username(null)
 				.password("password")
 				.nickname("test")
 				.build();
@@ -103,7 +103,7 @@ class BarointernApplicationTests {
 				.andExpect(jsonPath("$.error").exists())
 				.andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"))
 				.andExpect(jsonPath("$.error.message").value("잘못된 입력값이 존재합니다."));
-		;
+
 	}
 
 	@Test
@@ -111,7 +111,7 @@ class BarointernApplicationTests {
 	void invalidPwSignUp() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
 				.username("test")
-				.password("")
+				.password(null)
 				.nickname("test")
 				.build();
 
