@@ -68,8 +68,8 @@ class BarointernApplicationTests {
 	}
 
 	@Test
-	@DisplayName("일반 회원가입 validation 실패")
-	void invailidSignUp() throws Exception {
+	@DisplayName("회원가입 nickname 미입력 validation 실패")
+	void invalidNicknameSignUp() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
 				.username("signUp")
 				.password("password")
@@ -79,11 +79,50 @@ class BarointernApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(reqest)))
-				.andExpect((ResultMatcher) status().isOk())
-				.andExpect(jsonPath("$.username").value("signUp"))
-				.andExpect(jsonPath("$.nickname").value("test"))
-				.andExpect(jsonPath("$.roles").isArray())
-				.andExpect(jsonPath("$.roles[0].role").value("USER"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"))
+				.andExpect(jsonPath("$.error.message").value("잘못된 입력값이 존재합니다."));
+		;
+	}
+
+	@Test
+	@DisplayName("회원가입 username validation 실패")
+	void invalidUsernameSignUp() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("")
+				.password("password")
+				.nickname("test")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"))
+				.andExpect(jsonPath("$.error.message").value("잘못된 입력값이 존재합니다."));
+		;
+	}
+
+	@Test
+	@DisplayName("회원가입 password validation 실패")
+	void invalidPwSignUp() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("test")
+				.password("")
+				.nickname("test")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"))
+				.andExpect(jsonPath("$.error.message").value("잘못된 입력값이 존재합니다."));
 		;
 	}
 
