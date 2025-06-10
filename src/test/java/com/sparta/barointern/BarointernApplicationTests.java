@@ -68,6 +68,27 @@ class BarointernApplicationTests {
 	}
 
 	@Test
+	@DisplayName("일반 회원가입 validation 실패")
+	void invailidSignUp() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("signUp")
+				.password("password")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect((ResultMatcher) status().isOk())
+				.andExpect(jsonPath("$.username").value("signUp"))
+				.andExpect(jsonPath("$.nickname").value("test"))
+				.andExpect(jsonPath("$.roles").isArray())
+				.andExpect(jsonPath("$.roles[0].role").value("USER"))
+		;
+	}
+
+
+	@Test
 	@DisplayName("중복회원가입")
 	void signUp() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
