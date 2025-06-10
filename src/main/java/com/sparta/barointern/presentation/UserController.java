@@ -26,7 +26,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "일반 회원 가입", description = "사용자 이름, 닉네임, 비밀번호 입력", tags = {"사용자 관리 API"})
+    @Operation(summary = "일반 회원 가입", description = "사용자 이름(아이디는 영문자와 숫자, 공백문자), 닉네임(영문자와 숫자로만), 비밀번호 입력(영문자와 숫자로만) 1~20자로 구성", tags = {"사용자 관리 API"})
     @PostMapping("/signup")
     public ResponseEntity<UserResponseDto> signup(@Valid @RequestBody UserSignupRequestDto userSignupRequest) {
         UserAppResponseDto userAppResponseDto = userService.signup(userSignupRequest.toAppDto());
