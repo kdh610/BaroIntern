@@ -15,6 +15,7 @@
 -  중복회원 가입 : username중복시  예외 응답
 -  잘못된 형식의 입력 가입 : 잘못된 형식(string이 아니거나 username, password, nickname 중 하나라도 없을 경우)  예외 응답
 ![Image](https://github.com/user-attachments/assets/8af34165-ec3e-4179-b5a5-77b44c2f753e)
+![Image](https://github.com/user-attachments/assets/d3c62e4f-abef-4262-9d6b-e0352923e99f)
 
 ### 🔍 2. 로그인
 - /login : username, password 입력하여 로그인 성공, JWT토큰 응답
