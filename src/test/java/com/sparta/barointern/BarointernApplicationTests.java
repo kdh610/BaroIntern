@@ -68,6 +68,66 @@ class BarointernApplicationTests {
 	}
 
 	@Test
+	@DisplayName("회원가입 nickname 미입력 validation 실패")
+	void invalidNicknameSignUp() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("signUp")
+				.password("password")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"))
+				.andExpect(jsonPath("$.error.message").value("잘못된 입력값이 존재합니다."));
+		;
+	}
+
+	@Test
+	@DisplayName("회원가입 username validation 실패")
+	void invalidUsernameSignUp() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("")
+				.password("password")
+				.nickname("test")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"))
+				.andExpect(jsonPath("$.error.message").value("잘못된 입력값이 존재합니다."));
+		;
+	}
+
+	@Test
+	@DisplayName("회원가입 password validation 실패")
+	void invalidPwSignUp() throws Exception {
+		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
+				.username("test")
+				.password("")
+				.nickname("test")
+				.build();
+
+		// 회원가입 정상 입력
+		mockMvc.perform(MockMvcRequestBuilders.post("/signup")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(reqest)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").exists())
+				.andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"))
+				.andExpect(jsonPath("$.error.message").value("잘못된 입력값이 존재합니다."));
+		;
+	}
+
+
+	@Test
 	@DisplayName("중복회원가입")
 	void signUp() throws Exception {
 		UserSignupRequestDto reqest = UserSignupRequestDto.builder()
