@@ -1,4 +1,5 @@
-
+# API 엔드포인트 URL : http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/
+# Swagger UI 주소 : http://ec2-13-209-70-145.ap-northeast-2.compute.amazonaws.com:8080/swagger-ui/index.html#/
 
 
 ## 💻 API 명세
@@ -11,7 +12,8 @@
 ![Image](https://github.com/user-attachments/assets/46bf940c-328f-462c-b5a1-5bf48657a132)
 ![Image](https://github.com/user-attachments/assets/da4914b7-7c87-48ed-8aee-e167030d3daf)
 
--  중복회원 가입 : username중복시 예외 응답
+-  중복회원 가입 : username중복시  예외 응답
+-  잘못된 형식의 입력 가입 : 잘못된 형식(string이 아니거나 username, password, nickname 중 하나라도 없을 경우)  예외 응답
 ![Image](https://github.com/user-attachments/assets/8af34165-ec3e-4179-b5a5-77b44c2f753e)
 
 ### 🔍 2. 로그인
